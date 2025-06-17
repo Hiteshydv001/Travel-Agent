@@ -1,0 +1,18 @@
+# Core Frameworks
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic-settings
+
+# LangChain & LangGraph
+langchain
+langchain-google-genai
+langgraph
+langchain-community
+
+# Tool Dependencies
+amadeus
+sendgrid
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
