@@ -6,7 +6,7 @@ from app.schemas.trip import TripRequest, StreamMessage
 from app.agent.graph import AgentState
 from app.agent.nodes import (
     parse_user_prompt_node, flight_search_node, hotel_search_node,
-    activities_search_node, compile_plan_node
+    activities_search_node, compile_plan_node, send_email_node
 )
 from app.core.config import logger
 
@@ -34,6 +34,7 @@ workflow.add_node("find_flights", flight_search_node)
 workflow.add_node("find_hotels", hotel_search_node)
 workflow.add_node("find_activities", activities_search_node)
 workflow.add_node("compile_plan", compile_plan_node)
+workflow.add_node("send_email", send_email_node)
 
 # Define the graph's structure with edges and conditional logic
 workflow.set_entry_point("parse_user_prompt")
@@ -54,7 +55,8 @@ workflow.add_conditional_edges(
     {"continue_to_next_step": "find_activities", "end_with_error": "compile_plan"}
 )
 workflow.add_edge("find_activities", "compile_plan")
-workflow.add_edge("compile_plan", END)
+workflow.add_edge("compile_plan", "send_email")
+workflow.add_edge("send_email", END)
 
 # Compile the graph into a runnable application
 app_graph = workflow.compile()

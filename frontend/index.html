@@ -1,0 +1,887 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trip Planner - Plan Your Perfect Journey</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #f59e0b;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-card: #ffffff;
+            --border-color: #e5e7eb;
+            --border-light: #f3f4f6;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-card: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        [data-theme="dark"] {
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-light: #9ca3af;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+            --border-light: #4b5563;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .hero-section {
+            background: var(--gradient-bg);
+            padding: 4rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: -2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sample-prompts {
+            margin-top: 2rem;
+        }
+
+        .sample-prompts h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .sample-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sample-card:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .sample-card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .sample-card-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .sample-card-hint {
+            font-size: 0.8rem;
+            font-style: italic;
+            opacity: 0.6;
+        }
+
+        .notice-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .notice-card h4 {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notice-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .notice-card li {
+            padding: 0.25rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .notice-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .results-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 0;
+            min-height: 600px;
+            overflow: hidden;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .results-content {
+            padding: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: var(--text-light);
+            padding: 4rem 2rem;
+        }
+
+        .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            animation: slideInLeft 0.3s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-item i {
+            color: var(--success-color);
+        }
+
+        .error-item {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-item i {
+            color: var(--error-color);
+        }
+
+        .final-plan {
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .final-plan h1, .final-plan h2, .final-plan h3 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .final-plan h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .final-plan h2 {
+            font-size: 1.5rem;
+        }
+
+        .final-plan h3 {
+            font-size: 1.25rem;
+        }
+
+        .final-plan p {
+            margin-bottom: 1rem;
+        }
+
+        .final-plan ul, .final-plan ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .final-plan li {
+            margin-bottom: 0.5rem;
+        }
+
+        .final-plan code {
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .final-plan pre {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .typing {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2s steps(40, end);
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </div>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-plane-departure"></i>
+                    AI Trip Planner
+                </h1>
+                <p class="hero-subtitle">
+                    Craft the perfect journey with intelligent planning. Just describe your dream trip and let AI handle the rest.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Left Column: Input Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h2 class="card-title">Plan Your Trip</h2>
+                </div>
+
+                <form id="plannerForm">
+                    <div class="form-group">
+                        <label for="prompt" class="form-label">
+                            <i class="fas fa-lightbulb"></i> Your Trip Prompt
+                        </label>
+                        <textarea 
+                            id="prompt" 
+                            class="form-textarea" 
+                            placeholder="Describe your dream trip here... Include your origin, destination, dates, and interests!"
+                            rows="6"
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Plan My Trip
+                    </button>
+                </form>
+
+                <div class="sample-prompts">
+                    <h3><i class="fas fa-lightbulb"></i> Try a Sample Prompt</h3>
+                    
+                    <div class="sample-card" onclick="setPrompt(this)">
+                        <div class="sample-card-title">🏖️ Goa Beach & Temple Adventure</div>
+                        <div class="sample-card-text">Plan a 7-day trip to Goa, India, from my home in Delhi, India. We want to leave on October 10th, 2025. We are interested in temples, beaches, and seafood. Please find flights and hotels. My email is hiteshofficial0001@gmail.com</div>
+                        <div class="sample-card-hint">Perfect example with all required details</div>
+                    </div>
+
+                    <div class="sample-card" onclick="setPrompt(this)">
+                        <div class="sample-card-title">🎨 Parisian Art & Cuisine Tour</div>
+                        <div class="sample-card-text">Create a 5-day itinerary for a solo traveler in Paris, France from New York City for the first week of next April. Focus on art museums, historical landmarks, and authentic French cuisine. Find hotel options near the Louvre. Send plan to me@example.com</div>
+                        <div class="sample-card-hint">Uses relative dates and specific interests</div>
+                    </div>
+
+                    <div class="sample-card" onclick="setPrompt(this)">
+                        <div class="sample-card-title">🏔️ Swiss Alps Adventure</div>
+                        <div class="sample-card-text">Plan a 10-day hiking and photography trip to the Swiss Alps from London, UK, departing June 15th, 2025. Looking for mountain lodges, scenic train routes, and hiking trails. Budget is around $3000. Email: adventure@example.com</div>
+                        <div class="sample-card-hint">Includes budget and specific activities</div>
+                    </div>
+                </div>
+
+                <div class="notice-card">
+                    <h4>
+                        <i class="fas fa-info-circle"></i>
+                        For Best Results Include:
+                    </h4>
+                    <ul>
+                        <li><strong>Origin:</strong> Where you're traveling from</li>
+                        <li><strong>Destination:</strong> Where you want to go</li>
+                        <li><strong>Dates:</strong> Specific departure/return dates</li>
+                        <li><strong>Interests:</strong> What you want to do/see</li>
+                        <li><strong>Email:</strong> To receive your itinerary (optional)</li>
+                    </ul>
+                    <small style="color: #92400e; font-style: italic; margin-top: 0.5rem; display: block;">
+                        The AI works best with detailed, specific prompts. Vague requests may result in errors.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="card results-container">
+                <div class="results-header">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Your Trip Plan
+                </div>
+                <div class="results-content">
+                    <div id="logList"></div>
+                    <div id="finalPlan" class="final-plan"></div>
+                    <div id="placeholder" class="placeholder">
+                        <div class="placeholder-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <h3>Ready to Plan Your Adventure?</h3>
+                        <p>Enter your trip details on the left and watch as AI crafts your perfect itinerary!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_URL = 'http://127.0.0.1:8000/api/v1/plan-trip';
+
+        // DOM Elements
+        const plannerForm = document.getElementById('plannerForm');
+        const promptInput = document.getElementById('prompt');
+        const submitBtn = document.getElementById('submitBtn');
+        const logList = document.getElementById('logList');
+        const finalPlan = document.getElementById('finalPlan');
+        const placeholder = document.getElementById('placeholder');
+
+        // Theme Management
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+
+        // Set prompt from sample
+        function setPrompt(element) {
+            const promptText = element.querySelector('.sample-card-text').textContent;
+            promptInput.value = promptText.trim();
+            promptInput.focus();
+            
+            // Add visual feedback
+            element.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                element.style.transform = '';
+            }, 150);
+        }
+
+        // Handle form submission
+        plannerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                showNotification('Please enter a trip prompt.', 'warning');
+                return;
+            }
+
+            // Reset UI
+            setLoadingState(true);
+            clearResults();
+            hideElement(placeholder);
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt }),
+                });
+
+                if (!response.body) {
+                    throw new Error('Response body is null.');
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n\n');
+
+                    lines.forEach(line => {
+                        if (line.startsWith('data: ')) {
+                            const data = line.substring(6);
+                            try {
+                                const message = JSON.parse(data);
+                                handleStreamMessage(message);
+                            } catch (e) {
+                                console.error('Failed to parse JSON:', data);
+                            }
+                        }
+                    });
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showError(`Network error: ${error.message}`);
+            } finally {
+                setLoadingState(false);
+            }
+        });
+
+        // Handle streaming messages
+        function handleStreamMessage(message) {
+            if (!message || !message.type) return;
+
+            switch (message.type) {
+                case 'log':
+                    addLogMessage(message.content);
+                    break;
+                case 'result':
+                    displayFinalPlan(message.content);
+                    break;
+                case 'error':
+                    showError(message.content);
+                    break;
+            }
+        }
+
+        // UI Helper Functions
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<div class="spinner"></div> Planning Your Trip...';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Plan My Trip';
+            }
+        }
+
+        function clearResults() {
+            logList.innerHTML = '';
+            finalPlan.innerHTML = '';
+        }
+
+        function hideElement(element) {
+            element.style.display = 'none';
+        }
+
+        function showElement(element) {
+            element.style.display = 'block';
+        }
+
+        function addLogMessage(content) {
+            const logElement = document.createElement('div');
+            logElement.className = 'log-item';
+            logElement.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${content}</span>
+            `;
+            logList.appendChild(logElement);
+            logList.scrollTop = logList.scrollHeight;
+        }
+
+        function showError(content) {
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-item';
+            errorElement.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Error:</strong> ${content}
+            `;
+            logList.appendChild(errorElement);
+            logList.scrollTop = logList.scrollHeight;
+        }
+
+        function displayFinalPlan(content) {
+            try {
+                const htmlContent = marked.parse(content);
+                finalPlan.innerHTML = htmlContent;
+                finalPlan.classList.add('fade-in');
+                
+                // Smooth scroll to results
+                finalPlan.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+                console.error('Error parsing markdown:', error);
+                finalPlan.textContent = content;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification - you could enhance this with a toast library
+            alert(message);
+        }
+
+        // Enhanced animations and interactions
+        function addInteractionEffects() {
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-4px)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add focus effects to textarea
+            promptInput.addEventListener('focus', () => {
+                promptInput.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            promptInput.addEventListener('blur', () => {
+                promptInput.parentElement.style.transform = 'scale(1)';
+            });
+        }
+
+        // Initialize the application
+        function init() {
+            loadTheme();
+            addInteractionEffects();
+            
+            // Add some welcoming animation
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        }
+
+        // Set initial opacity for fade-in effect
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.3s ease';
+
+        // Initialize when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

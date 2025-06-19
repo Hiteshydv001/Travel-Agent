@@ -1,43 +1,67 @@
 import logging
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
+from typing import Optional, List
 
-# Configure logging to provide rich output for debugging and monitoring
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class Settings(BaseSettings):
     """
-    Manages application settings and secrets using pydantic-settings.
-    It automatically reads from a .env file.
+    Application settings.
     """
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', extra='ignore')
-
-    # API Version
+    # API Settings
     API_V1_STR: str = "/api/v1"
-
-    # LLM Provider
-    GOOGLE_API_KEY: str
-
-    # Tool APIs
-    SERP_API_KEY: str
-    AMADEUS_CLIENT_ID: Optional[str] = None
-    AMADEUS_CLIENT_SECRET: Optional[str] = None
-    SENDGRID_API_KEY: Optional[str] = None
-    SENDER_EMAIL: Optional[str] = None
+    PROJECT_NAME: str = "AI Trip Planner API"
     
-    # Project Info
-    PROJECT_NAME: str = "AI Trip Planner"
+    # CORS Settings
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    
+    # Security Settings
+    SECRET_KEY: str = "your-secret-key-here"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+    
+    # Database Settings
+    DATABASE_URL: str = "sqlite:///./app.db"
+    
+    # LLM Settings
+    GOOGLE_API_KEY: str = ""
+    
+    # Email Settings
+    GMAIL_SENDER_EMAIL: str = ""
+    GMAIL_APP_PASSWORD: str = ""
+    SENDGRID_API_KEY: str = ""
+    SENDER_EMAIL: str = ""
+    
+    # Amadeus API Settings
+    AMADEUS_CLIENT_ID: str = ""
+    AMADEUS_CLIENT_SECRET: str = ""
+    
+    # SerpAPI Settings
+    SERP_API_KEY: str = ""
+    
+    class Config:
+        case_sensitive = True
+        env_file = ".env"
 
-# Instantiate the settings
+# Create settings instance
 settings = Settings()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Perform validation checks on startup to ensure the application is configured correctly
+# Log startup
+logger.info("Starting up AI Trip Planner API...")
+
+# Validation checks for required settings
 if not settings.GOOGLE_API_KEY:
-    logger.error("FATAL: GOOGLE_API_KEY is not set. The application cannot function.")
-    raise ValueError("GOOGLE_API_KEY is not set. Please check your .env file.")
+    logger.error("FATAL: GOOGLE_API_KEY is not set.")
+    raise ValueError("GOOGLE_API_KEY is not set.")
 if not settings.SERP_API_KEY:
-    logger.error("FATAL: SERP_API_KEY is not set. Search tools will fail.")
-    raise ValueError("SERP_API_KEY is not set. Please check your .env file.")
+    logger.error("FATAL: SERP_API_KEY is not set.")
+    raise ValueError("SERP_API_KEY is not set.")
 
 logger.info("Application settings loaded and validated successfully.")
