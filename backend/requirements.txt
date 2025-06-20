@@ -3,6 +3,8 @@ fastapi
 uvicorn[standard]
 python-dotenv
 pydantic-settings
+pydantic[email]
+
 
 # LangChain & LangGraph
 langchain
