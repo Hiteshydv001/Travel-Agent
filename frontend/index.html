@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -646,8 +645,8 @@
     </div>
 
     <script>
-        // API Configuration
-        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        // API Configuration - This is the only line that needs to be changed.
+        const API_URL = 'https://travel-agent-r8a6.onrender.com';
 
         // DOM Elements
         const plannerForm = document.getElementById('plannerForm');
@@ -714,7 +713,7 @@
             hideElement(placeholder);
 
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(`${API_URL}/api/v1/plan-trip`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: prompt }),
